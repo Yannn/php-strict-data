@@ -5,7 +5,7 @@
  * @author Annenkov Yaroslav <ya@annenkov.ru>
  * @link https://github.com/Yannn/php-strict-datastorage
  */
-interface IEnumArrayable
+interface EnumArrayableInterface
 {
-    public function getEnumArray();
+    public function getEnumValues();
 } 

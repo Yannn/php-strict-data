@@ -1,12 +1,13 @@
 <?php
 /**
- * @property int             $integer
+ * @property integer         $integer
  * @property Closure         $callback
+ * @property mixed           $mixed
  *
  * @property integer[]       $integers
  * @enum     SampleEnum[]    $integers
  *
- * @property float           $enumFloat
+ * @property float|string    $enumFloat
  * @enum     ["1.8","7","9"] $enumFloat
  *
  * @property string[]        $enumArray

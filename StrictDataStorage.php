@@ -7,21 +7,22 @@
  */
 class StrictDataStorage
 {
-    private $_regexpClass = '/[_\\w\\d]+/';
-    /** @var bool strict check */
+    /** @var bool */
     private $_optionPhpDocNotRequired = false;
-    /** @var bool strict check */
+    /** @var bool */
     private $_optionStrictNumberTypeCheck = false;
-    /** @var array [class1=> phpDoc1, class2=> phpDoc2...] */
+    /** @var string check class name */
+    private $_regexpClass = '/[_\\w\\d]+/';
+    /** @var array cache [class1=> phpDoc1, class2=> phpDoc2...] */
     private static $_phpDoc;
-    /** @var array types of properties [class1=> [property1=> [type1,type2...], property2=> [type1,type2...],..],..] */
+    /** @var array cache types of properties [class1=> [property1=> [type1,type2...], property2=> [type1,type2...],..],..] */
     private static $_properties;
-    /** @var array possible values of properties [class1=> [property1=> ['values'=> [value1,value2...], 'isArray'=>true],..],..] */
+    /** @var array cache possible values of properties [class1=> [property1=> ['values'=> [value1,value2...], 'isArray'=>true],..],..] */
     private static $_enums;
-    /** @var array functions for check types. is_callable() - dangerous function! use type Closure */
+    /** @var array functions for check types. <b>is_callable()</b> - dangerous function! use check class Closure */
     private static $_functions = ['string' => 'is_string', 'array' => 'is_array', 'object' => 'is_object',
         'null' => 'is_null', 'resource' => 'is_resource', 'boolean' => 'is_bool', 'bool' => 'is_bool',
-        'int' => '_isInteger', 'integer' => '_isInteger', 'float' => '_isFloat', 'double' => '_isFloat'];
+        'int' => 'checkIsInteger', 'integer' => 'checkIsInteger', 'float' => 'checkIsFloat', 'double' => 'checkIsFloat'];
 
     function __construct()
     {
@@ -33,7 +34,6 @@ class StrictDataStorage
         if (in_array('PhpDocNotRequired', $options)) {
             $this->_optionPhpDocNotRequired = true;
         }
-        //$this->_strictMode = $strictMode;
     }
 
     /**
@@ -43,7 +43,6 @@ class StrictDataStorage
     function __get($name)
     {
         if (!$this->_existDescription() || !$this->_existPropertyDescription($name)) {
-            // lines "@property" and "@enum" not exists in phpdoc
             if (!$this->_optionPhpDocNotRequired || !isset($this->$name)) {
                 $this->handleNotExist($name);
             } else {
@@ -61,7 +60,6 @@ class StrictDataStorage
     function __set($name, $value)
     {
         if (!$this->_existDescription() || !$this->_existPropertyDescription($name)) {
-            // lines "@property" and "@enum" not exists in phpdoc
             if (!$this->_optionPhpDocNotRequired) {
                 $this->handleNotExist($name);
             } else {
@@ -79,42 +77,96 @@ class StrictDataStorage
     }
 
     /**
-     * Action execute if property not defined in phpdoc
+     * Action execute if property not defined in PHPDoc or property not exist by PhpDocNotRequired=true
      *
      * @param $name
      */
     protected function handleNotExist($name)
     {
-        $this->throwException('Property ' . $name . ' not exist');
+        $this->handleError('Property ' . $name . ' not exist');
     }
 
     /**
-     * Action execute if type value of property does not match phpdoc
+     * Action execute if type value of property does not match "@property"
      *
      * @param $name
      */
     protected function handleTypeInvalid($name)
     {
-        $this->throwException('Invalid type of value for property ' . $name);
+        $this->handleError('Invalid type of value for property ' . $name);
     }
 
     /**
-     * Action execute if value of property does not match phpdoc
+     * Action execute if value of property does not match "@enum"
      *
      * @param $name
      */
     protected function handleValueInvalid($name)
     {
-        $this->throwException('Invalid value for property ' . $name);
+        $this->handleError('Invalid value for property ' . $name);
     }
 
     /**
      * @param string $message
      * @throws Exception
      */
-    public function throwException($message)
+    protected function handleError($message)
     {
         throw new Exception($message);
+    }
+
+    /**
+     * Get values from enum class
+     *
+     * @param string $enum
+     * @return  array|null
+     */
+    protected function getEnumValues($enum){
+        /** @var  EnumArrayableInterface $object */
+        $object = new $enum;
+        if ($object instanceof EnumArrayableInterface) {
+            return $object->getEnumValues();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get functions for type check
+     *
+     * @return array
+     * @see $_functions
+     */
+    protected function getCheckTypeFunctions()
+    {
+        $functions = self::$_functions;
+        if ($this->_optionStrictNumberTypeCheck) {
+            $functions['int'] = $functions['integer'] = 'is_int';
+            $functions['float'] = $functions['double'] = 'is_float';
+        }
+        return $functions;
+    }
+
+    /**
+     * Check value for integer type
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected function checkIsInteger($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
+
+    /**
+     * Check value for float type
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected function checkIsFloat($value)
+    {
+        return filter_var($value, FILTER_VALIDATE_FLOAT) !== false;
     }
 
     /**
@@ -136,8 +188,8 @@ class StrictDataStorage
 
     /**
      * Get array types of property
-     * or null if property is not defined in phpdoc,
-     * or [] if lines "@property" not exists in phpdoc.
+     * or null if property is not defined in PHPDoc,
+     * or [] if lines "@property" not exists in PHPDoc.
      *
      * @param $name
      * @return array|null
@@ -150,8 +202,8 @@ class StrictDataStorage
 
     /**
      * Get array possible values of property
-     * or null if enums for property is not defined in phpdoc,
-     * or [] if lines "@enums" not exists in phpdoc.
+     * or null if enums for property is not defined in PHPDoc,
+     * or [] if lines "@enums" not exists in PHPDoc.
      *
      * @param $name
      * @return array|null
@@ -163,10 +215,10 @@ class StrictDataStorage
     }
 
     /**
-     * Parse "@property" items form phpdoc and build array types of properties.
+     * Parse "@property" items form PHPDoc and build array types of properties.
      * Types cached to {@link $_properties}.
      *
-     * @return array return [] if lines "@property" not exists in phpdoc
+     * @return array return [property1=> [type1, type2],...]  or [] if lines "@property" not exists in PHPDoc
      */
     private function _getAllowedTypes()
     {
@@ -187,10 +239,10 @@ class StrictDataStorage
     }
 
     /**
-     * Parse "@enum" items form phpdoc and build array enums of properties.
+     * Parse "@enum" items form PHPDoc and build array enums of properties.
      * Enums cached to {@link $_enums}.
      *
-     * @return array return [] if lines "@enum" not exists in phpdoc
+     * @return array return [property1=> ['values' => [value1, value2], 'isArray' => false],...] or [] if lines "@enum" not exists in PHPDoc
      */
     private function _getAllowedValues()
     {
@@ -209,15 +261,12 @@ class StrictDataStorage
                     if (substr($enum, 0, 1) == '[' && substr($enum, -1) == ']') {
                         $values = json_decode($enum, true);
                     } elseif (preg_match($this->_regexpClass, $enum)) {
-                        /** @var  IEnumArrayable $object */
-                        $object = new $enum;
-                        if ($object instanceof IEnumArrayable) {
-                            $values = $object->getEnumArray();
-                        } else {
-                            $this->throwException('Invalid enum ' . $enum);
+                        $values = $this->getEnumValues($enum);
+                        if(!$values){
+                            $this->handleError('Invalid enum ' . $enum);
                         }
                     } else {
-                        $this->throwException('Invalid enum ' . $enum);
+                        $this->handleError('Invalid enum ' . $enum);
                     }
                     $enums[$property]['values'] = $values;
                     $enums[$property]['isArray'] = $isArray;
@@ -232,10 +281,11 @@ class StrictDataStorage
     }
 
     /**
-     * Checks the value against one of the types.
+     * Checks value matching one of allowing types
      *
      * @param mixed $value
-     * @param array $types
+     * @param array $types  see in
+     *                      {@link _getAllowedTypes()}
      * @return bool
      */
     private function _checkByTypes($value, array $types)
@@ -243,11 +293,7 @@ class StrictDataStorage
         if (empty($types)) {
             return true;
         }
-        $functions = self::$_functions;
-        if ($this->_optionStrictNumberTypeCheck) {
-            $functions['int'] = $functions['integer'] = 'is_int';
-            $functions['float'] = $functions['double'] = 'is_float';
-        }
+        $functions = $this->getCheckTypeFunctions();
         foreach ($types as $type) {
             if ($type == 'mixed') {
                 return true;
@@ -261,11 +307,11 @@ class StrictDataStorage
             // prepare functions and params
             if (isset($functions[$type])) {
                 $fn = $functions[$type];
-                if (strpos($fn, '_') === 0) {
+                if (strpos($fn, 'checkIs') === 0) {
                     if (method_exists($this, $fn)) {
                         $fn = [$this, $fn];
                     } else {
-                        $this->throwException('Not found method ' . $fn);
+                        $this->handleError('Not found method ' . $fn);
                     }
                 }
                 $params = [];
@@ -275,7 +321,7 @@ class StrictDataStorage
                 };
                 $params = [$type];
             } else {
-                $this->throwException('Not found handler for ' . $type);
+                $this->handleError('Not found handler for ' . $type);
             }
             // check
             if ($isArray) {
@@ -299,10 +345,11 @@ class StrictDataStorage
     }
 
     /**
-     * Checks the value against one of the types.
+     *  Checks value matching one of the allowing $values
      *
      * @param mixed $value
-     * @param array $values
+     * @param array $values see in
+     *                      {@link _getAllowedValues()}
      * @return bool
      */
     private function _checkByValues($value, array $values)
@@ -327,6 +374,8 @@ class StrictDataStorage
     }
 
     /**
+     * Get and caching text of PHPDoc
+     *
      * @param string $class
      * @return string
      */
@@ -340,6 +389,8 @@ class StrictDataStorage
     }
 
     /**
+     * Get values of PHPDoc items by name
+     *
      * @param string $name
      * @return mixed
      */
@@ -375,23 +426,5 @@ class StrictDataStorage
                 $items = [];
         }
         return $items;
-    }
-
-    /**
-     * @param mixed $value
-     * @return bool
-     */
-    private function _isInteger($value)
-    {
-        return filter_var($value, FILTER_VALIDATE_INT) !== false;
-    }
-
-    /**
-     * @param mixed $value
-     * @return bool
-     */
-    private function _isFloat($value)
-    {
-        return filter_var($value, FILTER_VALIDATE_FLOAT) !== false;
     }
 }

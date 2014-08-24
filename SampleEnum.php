@@ -1,7 +1,7 @@
 <?php
-class SampleEnum implements IEnumArrayable
+class SampleEnum implements EnumArrayableInterface
 {
-    public function getEnumArray()
+    public function getEnumValues()
     {
         return [1, 3, 5, 7, 9];
     }
