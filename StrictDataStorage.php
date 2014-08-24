@@ -399,9 +399,9 @@ class StrictDataStorage
         $phpDoc = $this->_getPhpDoc(get_class($this));
         switch ($name) {
             case 'options':
-                preg_match('/@options\s*([\w\|]+)/m', $phpDoc, $matches);
+                preg_match('/@options\s*([\w\,]+)/m', $phpDoc, $matches);
                 if (isset($matches[1])) {
-                    $items = explode('|', $matches[1]);
+                    $items = explode(',', $matches[1]);
                 } else {
                     $items = [];
                 }

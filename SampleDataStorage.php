@@ -13,7 +13,7 @@
  * @property string[]        $enumArray
  * @enum     ["one","two"][] $enumArray
  *
- * @options  PhpDocNotRequired|StrictNumberTypeCheck
+ * @options  PhpDocNotRequired,StrictNumberTypeCheck
  */
 class SampleDataStorage extends StrictDataStorage
 {
