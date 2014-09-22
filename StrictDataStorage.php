@@ -7,6 +7,8 @@
  */
 class StrictDataStorage
 {
+    /** @var array */
+    private $_items = [];
     /** @var bool */
     private $_optionPhpDocNotRequired = false;
     /** @var bool */
@@ -43,13 +45,13 @@ class StrictDataStorage
     function __get($name)
     {
         if (!$this->_existDescription() || !$this->_existPropertyDescription($name)) {
-            if (!$this->_optionPhpDocNotRequired || !isset($this->$name)) {
+            if (!$this->_optionPhpDocNotRequired || !array_key_exists($this->_items,$name)) {
                 $this->handleNotExist($name);
             } else {
-                return $this->$name;
+                return $this->_items[$name];
             }
         } else {
-            return $this->$name;
+            return $this->_items[$name];
         }
     }
 
@@ -63,7 +65,7 @@ class StrictDataStorage
             if (!$this->_optionPhpDocNotRequired) {
                 $this->handleNotExist($name);
             } else {
-                $this->$name = $value;
+                $this->_items[$name] = $value;
             }
         } else {
             if (!$this->_checkByTypes($value, $this->_getPropertyTypes($name))) {
@@ -71,7 +73,7 @@ class StrictDataStorage
             } elseif (!$this->_checkByValues($value, $this->_getPropertyValues($name))) {
                 $this->handleValueInvalid($name);
             } else {
-                $this->$name = $value;
+                $this->_items[$name] = $value;
             }
         }
     }
@@ -155,7 +157,7 @@ class StrictDataStorage
      */
     protected function checkIsInteger($value)
     {
-        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+        return is_bool($value)?false:filter_var($value, FILTER_VALIDATE_INT) !== false;
     }
 
     /**
@@ -166,7 +168,7 @@ class StrictDataStorage
      */
     protected function checkIsFloat($value)
     {
-        return filter_var($value, FILTER_VALIDATE_FLOAT) !== false;
+        return is_bool($value)?false:filter_var($value, FILTER_VALIDATE_FLOAT) !== false;
     }
 
     /**
