@@ -2,11 +2,14 @@
 
 class StrictDataStorageTest extends PHPUnit_Framework_TestCase
 {
-    private $_propertiesPlain = ['mixed','bool','integer','float','string','array','null','callback','stdClass','resource'];
-    private $_propertiesArray = ['mixedArray','boolArray','integerArray','floatArray','stringArray','arrayArray','nullArray','callbackArray','stdClassArray','resourceArray'];
-    private $_enums = ['number','numbers','numberClass','numbersClass'];
+    private $_propertiesPlain = ['mixed', 'bool', 'integer', 'float', 'string', 'array', 'null', 'callback', 'stdClass', 'resource'];
+    private $_propertiesArray = ['mixedArray', 'boolArray', 'integerArray', 'floatArray', 'stringArray', 'arrayArray', 'nullArray', 'callbackArray', 'stdClassArray', 'resourceArray'];
+    private $_propertiesTypesSet = ['boolOrInteger', 'boolOrIntegerArray', 'boolOrIntegerArrayOrNull'];
 
-    private function _testTypes($properties,$value,$successCount){
+    private $_enums = ['number', 'numbers', 'numberClass', 'numbersClass'];
+
+    private function _testTypes($properties, $value, $successCount)
+    {
         $c = new TestPropertyDataStorage();
         $errorCnt = 0;
         $errorProp = [];
@@ -14,33 +17,46 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
         foreach($properties as $property) {
             try {
                 $c->$property = $value;
-                $successProp[]= $property;
+                $successProp[] = $property;
             } catch(Exception $expected) {
                 $errorCnt++;
-                $errorProp[]= $property;
+                $errorProp[] = $property;
             }
         }
-        $errorCntExpected=count($properties)-$successCount;
-        $message='for value "'.var_export($value,true).'" failed properties: ['.join(',',$errorProp).'] success properties: ['.join(',',$successProp).']';
+        $errorCntExpected = count($properties) - $successCount;
+        $message = 'for value "'.var_export($value, true).'" failed properties: ['.join(',', $errorProp).'] success properties: ['.join(',', $successProp).']';
         $this->assertEquals($errorCntExpected, $errorCnt, $message);
     }
 
-   /**
+    /**
      * @dataProvider valuesPlainProvider
      */
-    public function testTypesPlain($value,$successCount)
+    public function testTypesPlain($value, $successCount)
     {
-        $this->_testTypes($this->_propertiesPlain,$value,$successCount);
+        $this->_testTypes($this->_propertiesPlain, $value, $successCount);
     }
 
     /**
      * @dataProvider valuesArrayProvider
      */
-    public function testTypesArray($value,$successCount)
+    public function testTypesArray($value, $successCount)
     {
-        $this->_testTypes($this->_propertiesArray,$value,$successCount);
+        $this->_testTypes($this->_propertiesArray, $value, $successCount);
     }
 
+    /**
+     * @dataProvider valuesTypesSetProvider
+     */
+    public function testTypesSet($value, $successCount)
+    {
+
+        $this->_testTypes($this->_propertiesTypesSet, $value, $successCount);
+    }
+
+
+    /**
+     * @return array [[$value, $countSuccessAssignment]]
+     */
     public function valuesPlainProvider()
     {
         return [
@@ -51,29 +67,73 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
             ['1.2', 3],
             ['str', 2],
             [true, 2],
-            [[1,2,3],2],
-            [new stdClass(),2],
+            [[1, 2, 3], 2],
+            [new stdClass(), 2],
             [function () {
-            },2],
+            }, 2],
         ];
     }
 
+    /**
+     * @return array [[$value, $countSuccessAssignment]]
+     */
     public function valuesArrayProvider()
     {
         return [
             [[null], 2],
-            [[1,2], 3],
-            [['1','2'], 4],
-            [[1.2,1.5], 2],
-            [['1.2','1.5'], 3],
-            [['str1','str2'], 2],
-            [[true,false], 2],
-            [[[1],[2],[3]],2],
-            [[new stdClass(),new stdClass()],2],
-            [[function () {},function () {}],2],
+            [[1, 2], 3],
+            [['1', '2'], 4],
+            [[1.2, 1.5], 2],
+            [['1.2', '1.5'], 3],
+            [['str1', 'str2'], 2],
+            [[true, false], 2],
+            [[[1], [2], [3]], 2],
+            [[new stdClass(), new stdClass()], 2],
+            [[function () {
+            }, function () {
+            }], 2],
         ];
     }
 
+    /**
+     * @return array [[$value, $countSuccessAssignment]]
+     */
+    public function valuesTypesSetProvider()
+    {
+        return [
+            [null, 1],
+            [1, 1],
+            ['1', 1],
+            [1.2, 0],
+            ['1.2', 0],
+            ['str', 0],
+            [true, 3],
+            [[1, 2, 3], 2],
+            [new stdClass(), 0],
+            [function () {
+            }, 0],
+        ];
+    }
+
+    /**
+     * @return array [[$value, $countSuccessAssignment]]
+     */
+    public function valuesEnumsProvider()
+    {
+        return [
+            [null, 1],
+            [1, 1],
+            ['1', 1],
+            [1.2, 0],
+            ['1.2', 0],
+            ['str', 0],
+            [true, 3],
+            [[1, 2, 3], 2],
+            [new stdClass(), 0],
+            [function () {
+            }, 0],
+        ];
+    }
 }
 
 /**
@@ -101,11 +161,12 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
  *
  * @property bool|integer           $boolOrInteger
  * @property bool|integer[]         $boolOrIntegerArray
- * @property bool|integer[]|null    $boolOrIntegerOrNull
+ * @property bool|integer[]|null    $boolOrIntegerArrayOrNull
  */
 class TestPropertyDataStorage extends StrictDataStorage
 {
 }
+
 /**
  * @enum     ['one','two']      $number
  * @enum     ['one','two'][]    $numbers
@@ -130,6 +191,6 @@ class TestNumbersEnum implements EnumArrayableInterface
 {
     public function getEnumValues()
     {
-        return ['one','two'];
+        return ['one', 'two'];
     }
 }
