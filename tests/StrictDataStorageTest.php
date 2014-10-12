@@ -5,26 +5,25 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     private $_propertiesPlain = ['mixed', 'bool', 'integer', 'float', 'string', 'array', 'null', 'callback', 'stdClass', 'resource'];
     private $_propertiesArray = ['mixedArray', 'boolArray', 'integerArray', 'floatArray', 'stringArray', 'arrayArray', 'nullArray', 'callbackArray', 'stdClassArray', 'resourceArray'];
     private $_propertiesTypesSet = ['boolOrInteger', 'boolOrIntegerArray', 'boolOrIntegerArrayOrNull'];
-
     private $_enums = ['number', 'numbers', 'numberClass', 'numbersClass'];
 
-    private function _testTypes($properties, $value, $successCount)
+    private function _testPHPDocItems($phpdocItems, $value, $successCount, $classTest='TestPropertyDataStorage')
     {
-        $c = new TestPropertyDataStorage();
+        $c = new $classTest();
         $errorCnt = 0;
-        $errorProp = [];
-        $successProp = [];
-        foreach($properties as $property) {
+        $errorItems = [];
+        $successItems = [];
+        foreach($phpdocItems as $property) {
             try {
                 $c->$property = $value;
-                $successProp[] = $property;
+                $successItems[] = $property;
             } catch(Exception $expected) {
                 $errorCnt++;
-                $errorProp[] = $property;
+                $errorItems[] = $property;
             }
         }
-        $errorCntExpected = count($properties) - $successCount;
-        $message = 'for value "'.var_export($value, true).'" failed properties: ['.join(',', $errorProp).'] success properties: ['.join(',', $successProp).']';
+        $errorCntExpected = count($phpdocItems) - $successCount;
+        $message = 'for value "'.var_export($value, true).'" failed items: ['.join(',', $errorItems).'] success items: ['.join(',', $successItems).']';
         $this->assertEquals($errorCntExpected, $errorCnt, $message);
     }
 
@@ -33,7 +32,7 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testTypesPlain($value, $successCount)
     {
-        $this->_testTypes($this->_propertiesPlain, $value, $successCount);
+        $this->_testPHPDocItems($this->_propertiesPlain, $value, $successCount);
     }
 
     /**
@@ -41,7 +40,7 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testTypesArray($value, $successCount)
     {
-        $this->_testTypes($this->_propertiesArray, $value, $successCount);
+        $this->_testPHPDocItems($this->_propertiesArray, $value, $successCount);
     }
 
     /**
@@ -50,12 +49,21 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     public function testTypesSet($value, $successCount)
     {
 
-        $this->_testTypes($this->_propertiesTypesSet, $value, $successCount);
+        $this->_testPHPDocItems($this->_propertiesTypesSet, $value, $successCount);
+    }
+
+    /**
+     * @dataProvider valuesEnumsProvider
+     */
+    public function testEnums($value, $successCount)
+    {
+        $this->_testPHPDocItems($this->_enums, $value, $successCount, 'TestEnumDataStorage');
     }
 
 
+
     /**
-     * @return array [[$value, $countSuccessAssignment]]
+     * @return array [[$value, $countSuccessAssignment],..]
      */
     public function valuesPlainProvider()
     {
@@ -75,7 +83,7 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return array [[$value, $countSuccessAssignment]]
+     * @return array [[$value, $countSuccessAssignment],..]
      */
     public function valuesArrayProvider()
     {
@@ -96,7 +104,7 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return array [[$value, $countSuccessAssignment]]
+     * @return array [[$value, $countSuccessAssignment],..]
      */
     public function valuesTypesSetProvider()
     {
@@ -116,22 +124,17 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return array [[$value, $countSuccessAssignment]]
+     * @return array [[$value, $countSuccessAssignment],..]
      */
     public function valuesEnumsProvider()
     {
         return [
-            [null, 1],
-            [1, 1],
-            ['1', 1],
-            [1.2, 0],
-            ['1.2', 0],
             ['str', 0],
-            [true, 3],
-            [[1, 2, 3], 2],
-            [new stdClass(), 0],
-            [function () {
-            }, 0],
+            ['one', 2],
+            ['two', 2],
+            [['one','str'], 0],
+            [['one','two'] , 2],
+            [['two','two','two'] , 2],
         ];
     }
 }
@@ -168,10 +171,10 @@ class TestPropertyDataStorage extends StrictDataStorage
 }
 
 /**
- * @enum     ['one','two']      $number
- * @enum     ['one','two'][]    $numbers
- * @enum     TextEnum           $numberClass
- * @enum     TextEnum[]         $numbersClass
+ * @enum     ["one","two"]      $number
+ * @enum     ["one","two"][]    $numbers
+ * @enum     TestNumbersEnum    $numberClass
+ * @enum     TestNumbersEnum[]  $numbersClass
  */
 class TestEnumDataStorage extends StrictDataStorage
 {
