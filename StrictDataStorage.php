@@ -46,7 +46,7 @@ class StrictDataStorage
     function __get($name)
     {
         if(!$this->_existDescription() || !$this->_existPropertyDescription($name)) {
-            if(!$this->_optionPhpDocNotRequired || !array_key_exists($this->_items, $name)) {
+            if(!$this->_optionPhpDocNotRequired || !array_key_exists($name, $this->_items)) {
                 $this->handleNotExist($name);
             } else {
                 return $this->_items[$name];
@@ -80,9 +80,18 @@ class StrictDataStorage
     }
 
     /**
+     * @param $name
+     * @return mixed
+     */
+    function __isset($name)
+    {
+        return array_key_exists($name, $this->_items);
+    }
+
+    /**
      * Action execute if property not defined in PHPDoc or property not exist by PhpDocNotRequired=true
      *
-     * @param $name
+     * @param string $name
      */
     protected function handleNotExist($name)
     {
@@ -92,7 +101,7 @@ class StrictDataStorage
     /**
      * Action execute if type value of property does not match "@property"
      *
-     * @param $name
+     * @param string $name
      */
     protected function handleTypeInvalid($name)
     {
@@ -102,11 +111,21 @@ class StrictDataStorage
     /**
      * Action execute if value of property does not match "@enum"
      *
-     * @param $name
+     * @param string $name
      */
     protected function handleValueInvalid($name)
     {
         $this->handleError('Invalid value for property '.$name);
+    }
+
+    /**
+     * Action execute if value of property does not match "@enum"
+     *
+     * @param string $text
+     */
+    protected function handlePHPDocInvalid($text)
+    {
+        $this->handleError('Error in PHPDoc: '.$text);
     }
 
     /**
@@ -263,14 +282,19 @@ class StrictDataStorage
                         $isArray = false;
                     }
                     if(substr($enum, 0, 1) == '[' && substr($enum, -1) == ']') {
+                        // enum from json
                         $values = json_decode($enum, true);
+                        if($values ===null){
+                            $this->handlePHPDocInvalid('Invalid description of enum '.$enum." - ");
+                        }
                     } elseif(preg_match($this->_regexpClass, $enum)) {
+                        // enum from class
                         $values = $this->getEnumValues($enum);
                         if(!$values) {
-                            $this->handleError('Invalid enum '.$enum);
+                            $this->handleError('Invalid enum class '.$enum);
                         }
                     } else {
-                        $this->handleError('Invalid enum '.$enum);
+                        $this->handlePHPDocInvalid('Invalid enum '.$enum);
                     }
                     $enums[$property]['values'] = $values;
                     $enums[$property]['isArray'] = $isArray;
