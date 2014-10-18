@@ -61,6 +61,18 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function testOptions()
+    {
+        // test class without @options
+        $this->_testPHPDocItems(['integer','notdefined'], 1, 1);
+        $this->_testPHPDocItems(['integer','notdefined'], '1', 1);
+
+        // test class with @options  PhpDocNotRequired,StrictNumberTypeCheck
+        $this->_testPHPDocItems(['integer','notdefined'], 1, 2, 'TestOptionsDataStorage');
+        $this->_testPHPDocItems(['integer','notdefined'], '1', 1, 'TestOptionsDataStorage');
+    }
+
+
 
     /**
      * @return array [[$value, $countSuccessAssignment],..]
