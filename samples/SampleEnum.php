@@ -1,4 +1,6 @@
 <?php
+namespace PhpStrictData;
+
 class SampleEnum implements EnumArrayableInterface
 {
     public function getEnumValues()

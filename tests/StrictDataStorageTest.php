@@ -1,4 +1,6 @@
 <?php
+use PhpStrictData\StrictDataStorage;
+use PhpStrictData\EnumArrayableInterface;
 
 class StrictDataStorageTest extends PHPUnit_Framework_TestCase
 {

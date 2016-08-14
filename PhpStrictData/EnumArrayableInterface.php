@@ -1,4 +1,7 @@
 <?php
+
+namespace PhpStrictData;
+
 /**
  * Interface IEnumArrayable
  *

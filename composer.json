@@ -1,0 +1,36 @@
+{
+  "name": "Yannn/php-strict-data",
+  "description": "PHP class for store data with check values based on PHPDoc.",
+  "keywords": [
+    "storage",
+    "strict",
+    "PHPDoc"
+  ],
+  "homepage": "https://github.com/Yannn/php-strict-data",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Yaroslav Annenkov",
+      "email": "ya@annenkov.ru",
+      "homepage": "http://ya.annenkov.ru"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpStrictData\\": "PhpStrictData/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpStrictData\\": "tests/",
+      "PhpStrictData\\": "samples/"
+    }
+  }
+}
