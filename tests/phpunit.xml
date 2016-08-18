@@ -5,4 +5,10 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	stopOnFailure="false">
+    <testsuites>
+        <testsuite name="All">
+            <file>StrictDataStorageTest.php</file>
+        </testsuite>
+    </testsuites>
+
 </phpunit>
