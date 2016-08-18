@@ -470,7 +470,7 @@ class StrictDataStorage
                 }
                 break;
             case 'enum':
-                preg_match_all('/@enum\s*([\w\[\]\|]+|\[.*\])\s*\$(\w*)/m', $phpDoc, $matches);
+                preg_match_all('/@enum\s*([\w\[\]\|\\\]+|\[.*\])\s*\$(\w*)/m', $phpDoc, $matches);
                 if ($matches) {
                     $items = array_combine($matches[2], $matches[1]);
                 } else {
@@ -478,7 +478,7 @@ class StrictDataStorage
                 }
                 break;
             case 'property':
-                preg_match_all('/@property\s*([\w\[\]\|]*)\s*\$(\w*)/m', $phpDoc, $matches);
+                preg_match_all('/@property\s*([\w\[\]\|\\\]*)\s*\$(\w*)/m', $phpDoc, $matches);
                 if ($matches) {
                     $items = array_combine($matches[2], $matches[1]);
                 } else {

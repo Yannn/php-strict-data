@@ -1,31 +1,53 @@
 <?php
-use PhpStrictData\StrictDataStorage;
-use PhpStrictData\EnumArrayableInterface;
+namespace PhpStrictData;
 
-class StrictDataStorageTest extends PHPUnit_Framework_TestCase
+class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
 {
-    private $_propertiesPlain = ['mixed', 'bool', 'integer', 'float', 'string', 'array', 'null', 'callback', 'stdClass', 'resource'];
-    private $_propertiesArray = ['mixedArray', 'boolArray', 'integerArray', 'floatArray', 'stringArray', 'arrayArray', 'nullArray', 'callbackArray', 'stdClassArray', 'resourceArray'];
+    private $_propertiesPlain = [
+        'mixed',
+        'bool',
+        'integer',
+        'float',
+        'string',
+        'array',
+        'null',
+        'callback',
+        'stdClass',
+        'resource'
+    ];
+    private $_propertiesArray = [
+        'mixedArray',
+        'boolArray',
+        'integerArray',
+        'floatArray',
+        'stringArray',
+        'arrayArray',
+        'nullArray',
+        'callbackArray',
+        'stdClassArray',
+        'resourceArray'
+    ];
     private $_propertiesTypesSet = ['boolOrInteger', 'boolOrIntegerArray', 'boolOrIntegerArrayOrNull'];
     private $_enums = ['number', 'numbers', 'numberClass', 'numbersClass'];
 
-    private function _testPHPDocItems($phpdocItems, $value, $successCount, $classTest='TestPropertyDataStorage')
+    private function _testPHPDocItems($phpdocItems,$value,$successCount,$classTest = 'PhpStrictData\TestPropertyDataStorage')
     {
         $c = new $classTest();
         $errorCnt = 0;
         $errorItems = [];
         $successItems = [];
-        foreach($phpdocItems as $property) {
+        foreach ($phpdocItems as $property) {
             try {
                 $c->$property = $value;
                 $successItems[] = $property;
-            } catch(Exception $expected) {
+            } catch(\Exception $expected) {
                 $errorCnt++;
                 $errorItems[] = $property;
             }
         }
         $errorCntExpected = count($phpdocItems) - $successCount;
-        $message = 'for value "'.var_export($value, true).'" failed items: ['.join(',', $errorItems).'] success items: ['.join(',', $successItems).']';
+        $message = 'for value "'.var_export($value, true).'" failed items: ['.join(',',
+                $errorItems).'] success items: ['.join(',', $successItems).']';
         $this->assertEquals($errorCntExpected, $errorCnt, $message);
     }
 
@@ -59,21 +81,20 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
      */
     public function testEnums($value, $successCount)
     {
-        $this->_testPHPDocItems($this->_enums, $value, $successCount, 'TestEnumDataStorage');
+        $this->_testPHPDocItems($this->_enums, $value, $successCount, 'PhpStrictData\TestEnumDataStorage');
     }
 
 
     public function testOptions()
     {
         // test class without @options
-        $this->_testPHPDocItems(['integer','notdefined'], 1, 1);
-        $this->_testPHPDocItems(['integer','notdefined'], '1', 1);
+        $this->_testPHPDocItems(['integer', 'notdefined'], 1, 1);
+        $this->_testPHPDocItems(['integer', 'notdefined'], '1', 1);
 
         // test class with @options  PhpDocNotRequired,StrictNumberTypeCheck
-        $this->_testPHPDocItems(['integer','notdefined'], 1, 2, 'TestOptionsDataStorage');
-        $this->_testPHPDocItems(['integer','notdefined'], '1', 1, 'TestOptionsDataStorage');
+        $this->_testPHPDocItems(['integer', 'notdefined'], 1, 2, 'PhpStrictData\TestOptionsDataStorage');
+        $this->_testPHPDocItems(['integer', 'notdefined'], '1', 1, 'PhpStrictData\TestOptionsDataStorage');
     }
-
 
 
     /**
@@ -90,9 +111,12 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
             ['str', 2],
             [true, 2],
             [[1, 2, 3], 2],
-            [new stdClass(), 2],
-            [function () {
-            }, 2],
+            [new \stdClass(), 2],
+            [
+                function () {
+                },
+                2
+            ],
         ];
     }
 
@@ -110,10 +134,16 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
             [['str1', 'str2'], 2],
             [[true, false], 2],
             [[[1], [2], [3]], 2],
-            [[new stdClass(), new stdClass()], 2],
-            [[function () {
-            }, function () {
-            }], 2],
+            [[new \stdClass(), new \stdClass()], 2],
+            [
+                [
+                    function () {
+                    },
+                    function () {
+                    }
+                ],
+                2
+            ],
         ];
     }
 
@@ -131,9 +161,12 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
             ['str', 0],
             [true, 3],
             [[1, 2, 3], 2],
-            [new stdClass(), 0],
-            [function () {
-            }, 0],
+            [new \stdClass(), 0],
+            [
+                function () {
+                },
+                0
+            ],
         ];
     }
 
@@ -146,9 +179,9 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
             ['str', 0],
             ['one', 2],
             ['two', 2],
-            [['one','str'], 0],
-            [['one','two'] , 2],
-            [['two','two','two'] , 2],
+            [['one', 'str'], 0],
+            [['one', 'two'], 2],
+            [['two', 'two', 'two'], 2],
         ];
     }
 }
@@ -161,8 +194,8 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
  * @property float           $float
  * @property array           $array
  * @property null            $null
- * @property Closure         $callback
- * @property stdClass        $stdClass
+ * @property \Closure         $callback
+ * @property \stdClass        $stdClass
  * @property resource        $resource
  *
  * @property mixed[]         $mixedArray
@@ -172,8 +205,8 @@ class StrictDataStorageTest extends PHPUnit_Framework_TestCase
  * @property string[]        $stringArray
  * @property array[]         $arrayArray
  * @property null[]          $nullArray
- * @property Closure[]       $callbackArray
- * @property stdClass[]      $stdClassArray
+ * @property \Closure[]       $callbackArray
+ * @property \stdClass[]      $stdClassArray
  * @property resource[]      $resourceArray
  *
  * @property bool|integer           $boolOrInteger
@@ -187,8 +220,8 @@ class TestPropertyDataStorage extends StrictDataStorage
 /**
  * @enum     ["one","two"]      $number
  * @enum     ["one","two"][]    $numbers
- * @enum     TestNumbersEnum    $numberClass
- * @enum     TestNumbersEnum[]  $numbersClass
+ * @enum     PhpStrictData\TestNumbersEnum    $numberClass
+ * @enum     PhpStrictData\TestNumbersEnum[]  $numbersClass
  */
 class TestEnumDataStorage extends StrictDataStorage
 {
