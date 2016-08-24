@@ -24,13 +24,13 @@
   },
   "autoload": {
     "psr-4": {
-      "PhpStrictData\\": "PhpStrictData/"
+      "PhpStrictData\\": "PhpStrictData/",
+      "PhpStrictData\\Examples\\":   "examples/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "PhpStrictData\\Tests\\": "tests/",
-      "PhpStrictData\\Examples\\":   "examples/"
+      "PhpStrictData\\Tests\\": "tests/"
     }
   }
 }
