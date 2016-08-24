@@ -1,5 +1,5 @@
 {
-  "name": "Yannn/php-strict-data",
+  "name": "yannn/php-strict-data",
   "description": "PHP class for store data with check values based on PHPDoc.",
   "keywords": [
     "storage",
