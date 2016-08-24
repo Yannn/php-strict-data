@@ -1,7 +1,7 @@
 <?php
 require '../vendor/autoload.php';
 
-$a = new PhpStrictData\SampleDataStorage();
+$a = new PhpStrictData\Examples\SampleDataStorage();
 
 $a->integer = 1;
 // $a->integer = '7'; // error - not integer, enable StrictNumberTypeCheck

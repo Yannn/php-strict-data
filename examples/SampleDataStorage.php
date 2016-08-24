@@ -1,22 +1,22 @@
 <?php
-namespace PhpStrictData;
+namespace PhpStrictData\Examples;
 
 /**
- * @property integer                    $integer
- * @property \Closure                   $callback
- * @property mixed                      $mixed
+ * @property integer                                $integer
+ * @property \Closure                               $callback
+ * @property mixed                                  $mixed
  *
- * @property integer[]                  $integers
- * @enum     PhpStrictData\SampleEnum[] $integers
+ * @property integer[]                              $integers
+ * @enum     PhpStrictData\Examples\SampleEnum[]    $integers
  *
- * @property float|string               $enumFloat
- * @enum     ["1.8","7","9"]            $enumFloat
+ * @property float|string                           $enumFloat
+ * @enum     ["1.8","7","9"]                        $enumFloat
  *
- * @property string[]                   $enumArray
- * @enum     ["one","two"][]            $enumArray
+ * @property string[]                               $enumArray
+ * @enum     ["one","two"][]                        $enumArray
  *
  * @options  PhpDocNotRequired,StrictNumberTypeCheck
  */
-class SampleDataStorage extends StrictDataStorage
+class SampleDataStorage extends \PhpStrictData\StrictDataStorage
 {
 }

@@ -29,10 +29,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "PhpStrictData\\": [
-        "tests/",
-        "examples/"
-      ]
+      "PhpStrictData\\Tests\\": "tests/",
+      "PhpStrictData\\Examples\\":   "examples/"
     }
   }
 }

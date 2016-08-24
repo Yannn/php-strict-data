@@ -1,7 +1,7 @@
 <?php
-namespace PhpStrictData;
+namespace PhpStrictData\Examples;
 
-class SampleEnum implements EnumArrayableInterface
+class SampleEnum implements \PhpStrictData\EnumArrayableInterface
 {
     public function getEnumValues()
     {

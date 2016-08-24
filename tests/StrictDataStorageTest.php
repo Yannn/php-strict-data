@@ -1,5 +1,5 @@
 <?php
-namespace PhpStrictData;
+namespace PhpStrictData\Tests;
 
 class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
 {
@@ -30,8 +30,12 @@ class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
     private $_propertiesTypesSet = ['boolOrInteger', 'boolOrIntegerArray', 'boolOrIntegerArrayOrNull'];
     private $_enums = ['number', 'numbers', 'numberClass', 'numbersClass'];
 
-    private function _testPHPDocItems($phpdocItems,$value,$successCount,$classTest = 'PhpStrictData\TestPropertyDataStorage')
-    {
+    private function _testPHPDocItems(
+        $phpdocItems,
+        $value,
+        $successCount,
+        $classTest = 'PhpStrictData\Tests\TestPropertyDataStorage'
+    ) {
         $c = new $classTest();
         $errorCnt = 0;
         $errorItems = [];
@@ -81,7 +85,7 @@ class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testEnums($value, $successCount)
     {
-        $this->_testPHPDocItems($this->_enums, $value, $successCount, 'PhpStrictData\TestEnumDataStorage');
+        $this->_testPHPDocItems($this->_enums, $value, $successCount, 'PhpStrictData\Tests\TestEnumDataStorage');
     }
 
 
@@ -92,8 +96,8 @@ class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
         $this->_testPHPDocItems(['integer', 'notdefined'], '1', 1);
 
         // test class with @options  PhpDocNotRequired,StrictNumberTypeCheck
-        $this->_testPHPDocItems(['integer', 'notdefined'], 1, 2, 'PhpStrictData\TestOptionsDataStorage');
-        $this->_testPHPDocItems(['integer', 'notdefined'], '1', 1, 'PhpStrictData\TestOptionsDataStorage');
+        $this->_testPHPDocItems(['integer', 'notdefined'], 1, 2, 'PhpStrictData\Tests\TestOptionsDataStorage');
+        $this->_testPHPDocItems(['integer', 'notdefined'], '1', 1, 'PhpStrictData\Tests\TestOptionsDataStorage');
     }
 
 
@@ -213,17 +217,17 @@ class StrictDataStorageTest extends \PHPUnit_Framework_TestCase
  * @property bool|integer[]         $boolOrIntegerArray
  * @property bool|integer[]|null    $boolOrIntegerArrayOrNull
  */
-class TestPropertyDataStorage extends StrictDataStorage
+class TestPropertyDataStorage extends \PhpStrictData\StrictDataStorage
 {
 }
 
 /**
- * @enum     ["one","two"]      $number
- * @enum     ["one","two"][]    $numbers
- * @enum     PhpStrictData\TestNumbersEnum    $numberClass
- * @enum     PhpStrictData\TestNumbersEnum[]  $numbersClass
+ * @enum     ["one","two"]                          $number
+ * @enum     ["one","two"][]                        $numbers
+ * @enum     PhpStrictData\Tests\TestNumbersEnum    $numberClass
+ * @enum     PhpStrictData\Tests\TestNumbersEnum[]  $numbersClass
  */
-class TestEnumDataStorage extends StrictDataStorage
+class TestEnumDataStorage extends \PhpStrictData\StrictDataStorage
 {
 }
 
@@ -233,11 +237,11 @@ class TestEnumDataStorage extends StrictDataStorage
  *
  * @options  PhpDocNotRequired,StrictNumberTypeCheck
  */
-class TestOptionsDataStorage extends StrictDataStorage
+class TestOptionsDataStorage extends \PhpStrictData\StrictDataStorage
 {
 }
 
-class TestNumbersEnum implements EnumArrayableInterface
+class TestNumbersEnum implements \PhpStrictData\EnumArrayableInterface
 {
     public function getEnumValues()
     {
