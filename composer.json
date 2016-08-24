@@ -1,12 +1,17 @@
 {
   "name": "yannn/php-strict-data",
-  "description": "PHP class for store data with check values based on PHPDoc.",
+  "description": "PHP class for store data with check values based on annotation in PHPDoc.",
   "keywords": [
     "storage",
     "strict",
-    "PHPDoc"
+    "PHPDoc",
+    "validate",
+    "property",
+    "type hinting",
+    "enum",
+    "annotation"
   ],
-  "homepage": "https://github.com/Yannn/php-strict-data",
+  "homepage": "https://github.com/yannn/php-strict-data",
   "type": "library",
   "license": "MIT",
   "authors": [
